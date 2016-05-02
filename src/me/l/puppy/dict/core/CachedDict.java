@@ -20,8 +20,8 @@ public abstract class CachedDict implements Dict {
     protected abstract void search(Entity wordEntity);
 }
 private class Cache{
-    public Entity get(){
-
+    public Entity get(String word){
+        return null;
     }
     public void add(Entity word){
         
