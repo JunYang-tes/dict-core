@@ -1,9 +1,6 @@
 package me.l.puppy.dict.impl.stardict;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -69,12 +66,28 @@ class Dict {
 	}
 
 	class UTF8Reader {
+		/**
+		 * This is an FSM. In fact ,there is only two states. One is reading
+		 * first-byte, other is reading rest-byte. The first state is
+		 * represented by 0 and the second is represented by non-zero can be 1 2
+		 * 3 ... no body care
+		 */
 		int firstByte = 0;
 		int pushbacked = -1;
 
 		int[] masks = new int[] { 0xE0, 0xF0, 0xF8, 0xFC, 0xFE };
 		int[] check = new int[] { 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
 
+		/**
+		 * Read one character from file to buffer.Becuase of the length of bytes
+		 * representing one character is variable (may be 1 2 3 4 5 6 bytes) and
+		 * I must record how many bytes I read,this function return read count
+		 * of bytes.
+		 * 
+		 * @param buff
+		 * @param offset
+		 * @return
+		 */
 		public int readUTF8(byte[] buff, int offset) {
 			if (offset >= buff.length) {
 				return 0;
@@ -105,9 +118,9 @@ class Dict {
 							}
 						}
 						state = otherByteCnt;// 0 is also firstByte ,1 2 3 4 5 6
-												// is
-												// otherBytes
 						if (i + otherByteCnt + 1 >= buff.length) {
+							// there is no enough buffer.so put it back and read
+							// it next time;
 							pushbacked = b;
 							return readCounter - 1;
 						}

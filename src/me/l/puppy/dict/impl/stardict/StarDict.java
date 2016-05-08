@@ -11,6 +11,7 @@ import java.io.RandomAccessFile;
 import java.util.Properties;
 
 import me.l.puppy.dict.core.CachedDict;
+import me.l.puppy.dict.exceptions.DictNotAvaliable;
 import me.l.puppy.dict.model.DictInfo;
 import me.l.puppy.dict.model.Entity;
 import me.l.puppy.util.ConfigedRegParser;
@@ -46,8 +47,6 @@ public class StarDict extends CachedDict {
 		if (list != null)
 			for (String file : list) {
 				if (file.endsWith(".idx")) {
-					// if path2idx is not null ,then this path is not a valid
-					// dictionary
 					path2idx = path + file;
 				} else if (file.endsWith(".ifo")) {
 					path2info = path + file;
@@ -68,15 +67,14 @@ public class StarDict extends CachedDict {
 				}
 			}
 		try {
-			if (path2info != null)
-				info = new Info(new FileInputStream(path2info));
-			// TODO else error handle
-			if (path2idx != null)
-				idxReader = new IdxReader(info, new FileInputStream(path2idx));
-			if (path2dict != null)
-				dict = new Dict(new RandomAccessFile(path2dict, "r"), parser);
+			if(path2info == null || path2idx == null || path2dict ==null)
+				throw new DictNotAvaliable("Dictionary is not complete");
+			info = new Info(new FileInputStream(path2info));
+			idxReader = new IdxReader(info, new FileInputStream(path2idx));
+			dict = new Dict(new RandomAccessFile(path2dict, "r"), parser);
 
 		} catch (FileNotFoundException e) {
+			throw new DictNotAvaliable("Dictionary is not complete");
 		}
 	}
 
