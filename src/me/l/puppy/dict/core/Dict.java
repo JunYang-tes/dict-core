@@ -1,6 +1,6 @@
 package me.l.puppy.dict.core;
-import me.l.puppy.model.Entity;
+import me.l.puppy.dict.model.*;
 
 public interface Dict {
-    Entity search(string word);
+    Entity search(String word);
 }

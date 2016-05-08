@@ -1,5 +1,5 @@
-package me.l.puppy.dict;
-import me.l.puppy.model.Entity;
+package me.l.puppy.dict.core;
+import me.l.puppy.dict.model.*;
 public abstract class CachedDict implements Dict {
     Cache cache;
     public CachedDict(){
@@ -9,21 +9,24 @@ public abstract class CachedDict implements Dict {
         Entity wordEntity = cache.get(word);
         if (wordEntity!=null) {
             return wordEntity;
-        } else {
-            Entity wordEntity=new Entity();
+        } else {        	
+            wordEntity=search_(word);
             cache.add(wordEntity);
-            wordEntity.setWord(word);
-            search(wordEntity);
             return wordEntity;
         }
     }
-    protected abstract void search(Entity wordEntity);
+    protected abstract Entity  search_(String word);
 }
-private class Cache{
-    public Entity get(String word){
+class Cache{
+    public Cache() {
+		// TODO Auto-generated constructor stub
+	}
+	public Entity get(String word){
         return null;
     }
     public void add(Entity word){
-        
+        if(word!=null){
+        	
+        }
     }
 }
