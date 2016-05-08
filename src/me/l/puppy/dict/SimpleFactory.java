@@ -13,7 +13,7 @@ import me.l.puppy.dict.core.Dict;
 public abstract class SimpleFactory {
 	static HashMap<String, Dict> registered = new HashMap<String, Dict>();
 
-	static void register(String name, Dict dict) {
+	public static void register(String name, Dict dict) {
 		registered.put(name, dict);
 	}
 
@@ -22,6 +22,10 @@ public abstract class SimpleFactory {
 	}
 
 	public static String[] getNames() {
-		return (String[]) registered.keySet().toArray();
+		String [] ret=new String [registered.size()];
+		int idx=0;
+		for(String key : registered.keySet())
+			ret[idx++]=key;
+		return ret;
 	}
 }

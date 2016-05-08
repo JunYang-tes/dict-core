@@ -35,30 +35,35 @@ public class StarDict extends CachedDict {
 		Parser parser = null;
 		dict = null;
 		info = null;
+		if (!path.endsWith(File.separator))
+			path += File.separator;
+
 		File p = new File(path);
-		for (String file : p.list()) {
-			if (file.endsWith(".idx")) {
-				// if path2idx is not null ,then this path is not a valid
-				// dictionary
-				path2idx = file;
-			} else if (file.endsWith(".info")) {
-				path2info = file;
-			} else if (file.endsWith(".dict")) {
-				path2dict = file;
-			} else if (file.endsWith("pattern")) {
-				Properties prop = new Properties();
-				try {
-					prop.load(new FileInputStream(file));
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+		String[] list = p.list();
+		if (list != null)
+			for (String file : list) {
+				if (file.endsWith(".idx")) {
+					// if path2idx is not null ,then this path is not a valid
+					// dictionary
+					path2idx = path + file;
+				} else if (file.endsWith(".ifo")) {
+					path2info = path + file;
+				} else if (file.endsWith(".dict")) {
+					path2dict = path + file;
+				} else if (file.endsWith("pattern")) {
+					Properties prop = new Properties();
+					try {
+						prop.load(new FileInputStream(path + file));
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					parser = new ConfigedRegParser(prop);
 				}
-				parser = new ConfigedRegParser(prop);
 			}
-		}
 		try {
 			if (path2info != null)
 				info = new Info(new FileInputStream(path2info));
@@ -72,7 +77,7 @@ public class StarDict extends CachedDict {
 		} catch (FileNotFoundException e) {
 		}
 	}
-	
+
 	@Override
 	protected Entity search_(String word) {
 		IdxInfo info = this.idxSeacher.search(word);

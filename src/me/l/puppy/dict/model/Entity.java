@@ -26,21 +26,30 @@ public class Entity {
 	public String getWord() {
 		return this.word;
 	}
+	
+	private String [] toArray(List<String> list){
+		String []ret=new String[list.size()];
+		int idx=0;
+		for(String s : list){
+			ret[idx++]=s;
+		}
+		return ret;
+	}
 
 	public String[] getPronounce() {
-		return (String[]) pronounce.toArray();
+		return toArray(pronounce);
 	}
 
 	public String[] getParaphrase() {
-		return (String[]) paraphrase.toArray();
+		return toArray(paraphrase);
 	}
 
 	public String[] getSynonym() {
-		return (String[]) synonym.toArray();
+		return toArray(this.synonym);
 	}
 
 	public String[] getAntonym() {
-		return (String[]) antonym.toArray();
+		return toArray(this.antonym);
 	}
 
 	public void addParaphrase(String paraphrase) {

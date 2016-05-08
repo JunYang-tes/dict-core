@@ -28,9 +28,9 @@ public class RegParser implements Parser {
 	public Entity toEntity(String string) {
 		Entity ret = new Entity();
 		/**
-		 * This is a striped thing that we can not using callback I don't want
-		 * to use interface or reflector for this simple task. Using lambda in
-		 * java 8 can simplify the following codes.
+		 * This is a striped thing that we can not using callback in functions'
+		 * parameters. I don't want to use interface or reflector for this
+		 * simple task. Using lambda in java 8 can simplify the following codes.
 		 * **/
 		Matcher matcher = pronounce.matcher(string);
 		while (matcher.find()) {
@@ -45,7 +45,7 @@ public class RegParser implements Parser {
 			ret.addSynonym(matcher.group());
 		}
 		matcher = antonym.matcher(string);
-		while(matcher.find()){
+		while (matcher.find()) {
 			ret.addAntonym(matcher.group());
 		}
 		return ret;

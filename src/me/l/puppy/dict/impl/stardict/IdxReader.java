@@ -32,6 +32,8 @@ class IdxReader {
 		state = readStr;
 		idxOfreadIdx = 0;
 		idxOfreadLen = 0;
+		sb=new StringBuilder();
+		
 		try {
 			while ((b = inputStream.read()) != -1) {
 				switch (state) {
@@ -43,18 +45,25 @@ class IdxReader {
 					}
 					break;
 				case 1:// read idx which is an integer
-					if (idxOfreadIdx < idxArray.length) {
+					if (idxOfreadIdx < idxArray.length-1) {
 						idxArray[idxOfreadIdx++] = (byte) b;
 					} else {
+						idxArray[idxOfreadIdx]=(byte)b;
 						state = readLen;
+						
 					}
 					break;
 				case 2:// read length which is an integer
-					if (idxOfreadLen < lenArray.length) {
+					if (idxOfreadLen < lenArray.length-1) {
 						lenArray[idxOfreadLen++] = (byte) b;
 					} else {
+						lenArray[idxOfreadLen++] = (byte) b;
 						IdxInfo info = new IdxInfo();
 						info.word = sb.toString();
+						if(info.word.equals("love")){
+							System.out.println("x");
+						}
+
 						info.startIdx = Convertor.n2int(idxArray);
 						info.length = (int) Convertor.n2int(lenArray);
 						return info;
