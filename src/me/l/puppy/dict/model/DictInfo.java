@@ -1,19 +1,29 @@
 package me.l.puppy.dict.model;
 
 public class DictInfo {
+	String format;
 	String author;
 	String dictName;
 	String description;
 	String version;
 	String email;
 
-	public DictInfo(String author, String dictName, String description,
-			String version, String email) {
+	public DictInfo(String format, String author, String dictName,
+			String description, String version, String email) {
+		this.format = format;
 		this.author = author;
 		this.dictName = dictName;
 		this.description = description;
 		this.version = version;
 		this.email = email;
+	}
+
+	public String getFormat() {
+		return format;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
 	}
 
 	public String getAuthor() {

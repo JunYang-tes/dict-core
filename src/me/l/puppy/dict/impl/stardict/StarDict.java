@@ -10,12 +10,14 @@ import java.io.IOException;
 import java.util.Properties;
 
 import me.l.puppy.dict.core.CachedDict;
+import me.l.puppy.dict.model.DictInfo;
 import me.l.puppy.dict.model.Entity;
 import me.l.puppy.util.ConfigedRegParser;
 import me.l.puppy.util.Parser;
 
 public class StarDict extends CachedDict {
 	Dict dict;
+	Info info;
 	IdxSearcher idxSeacher;
 
 	/**
@@ -32,7 +34,7 @@ public class StarDict extends CachedDict {
 		IdxReader idxReader = null;
 		Parser parser = null;
 		dict = null;
-		Info info = null;
+		info = null;
 		File p = new File(path);
 		for (String file : p.list()) {
 			if (file.endsWith(".idx")) {
@@ -70,18 +72,18 @@ public class StarDict extends CachedDict {
 		} catch (FileNotFoundException e) {
 		}
 	}
-
-	public static void test() throws IOException {
-		java.io.FileInputStream in = new java.io.FileInputStream(
-				"/home/jun/github/dict-core/resources/stardict/oxford/oxford-gb.ifo");
-		Info info = new Info(in);
-		info.author = "";
-		in.close();
+	
+	@Override
+	protected Entity search_(String word) {
+		IdxInfo info = this.idxSeacher.search(word);
+		return this.dict.search(info);
 	}
 
 	@Override
-	protected Entity search_(String word) {
-		IdxInfo info=this.idxSeacher.search(word);
-		return this.dict.search(info);
+	public DictInfo getDictInfo() {
+		DictInfo info = new DictInfo("StarDict", this.info.author,
+				this.info.bookName, this.info.description, this.info.version,
+				this.info.email);
+		return info;
 	}
 }
