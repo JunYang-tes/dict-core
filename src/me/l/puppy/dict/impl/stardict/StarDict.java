@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Properties;
 
 import me.l.puppy.dict.core.CachedDict;
@@ -19,6 +20,8 @@ public class StarDict extends CachedDict {
 	Dict dict;
 	Info info;
 	IdxSearcher idxSeacher;
+	IdxReader idxReader;
+	boolean loaded = false;
 
 	/**
 	 * 
@@ -31,7 +34,7 @@ public class StarDict extends CachedDict {
 		String path2dict = null;
 		String path2info = null;
 		idxSeacher = null;
-		IdxReader idxReader = null;
+		idxReader = null;
 		Parser parser = null;
 		dict = null;
 		info = null;
@@ -71,15 +74,21 @@ public class StarDict extends CachedDict {
 			if (path2idx != null)
 				idxReader = new IdxReader(info, new FileInputStream(path2idx));
 			if (path2dict != null)
-				dict = new Dict(new FileInputStream(path2dict), parser);
-			this.idxSeacher = new IdxSearcher(idxReader);
+				dict = new Dict(new RandomAccessFile(path2dict, "r"), parser);
 
 		} catch (FileNotFoundException e) {
 		}
 	}
 
+	private void load() {
+		this.idxSeacher = new IdxSearcher(idxReader);
+		loaded = true;
+	}
+
 	@Override
 	protected Entity search_(String word) {
+		if (!loaded)
+			this.load();
 		IdxInfo info = this.idxSeacher.search(word);
 		return this.dict.search(info);
 	}

@@ -60,10 +60,6 @@ class IdxReader {
 						lenArray[idxOfreadLen++] = (byte) b;
 						IdxInfo info = new IdxInfo();
 						info.word = sb.toString();
-						if(info.word.equals("love")){
-							System.out.println("x");
-						}
-
 						info.startIdx = Convertor.n2int(idxArray);
 						info.length = (int) Convertor.n2int(lenArray);
 						return info;

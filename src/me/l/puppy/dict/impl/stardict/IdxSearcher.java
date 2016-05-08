@@ -12,7 +12,7 @@ import java.util.List;
 class IdxSearcher {
 	List<IdxInfo> idxInfos;
 
-	public IdxSearcher(IdxReader reader) throws FileNotFoundException {
+	public IdxSearcher(IdxReader reader) {
 		idxInfos = new ArrayList<IdxInfo>();
 		IdxInfo info;
 		while ((info = reader.next()) != null) {
