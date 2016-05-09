@@ -3,7 +3,7 @@ import me.l.puppy.dict.model.*;
 public abstract class CachedDict implements Dict {
     Cache cache;
     public CachedDict(){
-        cache=new Cache();
+        cache=new LinearCache();
     }
     public Entity search(String word){
         Entity wordEntity = cache.get(word);
@@ -17,16 +17,66 @@ public abstract class CachedDict implements Dict {
     }
     protected abstract Entity  search_(String word);
 }
+/*
 class Cache{
-    public Cache() {
-		// TODO Auto-generated constructor stub
-	}
+    int capacity;
+    HashMap<String,Entity> cache;
+    public Cache(int capacity) {
+        this.capacity=capacity;
+        cache=new HashMap(capacity+(0.3*capacity));
+    }
 	public Entity get(String word){
         return null;
     }
     public void add(Entity word){
         if(word!=null){
-        	
+        	if(cache.containsKey(word.getWord())){
+                cache.put(word.getWord(),word);
+            }else{
+                if(cache.size()<this.capacity)
+                    cache.put(word.getWord(),word);
+                else{
+
+                }
+            }
         }
+    }
+}*/
+
+class HeapCache extends Cache {
+    Heap<HeapItem> searchFrq;
+    HashMap<String ,Integer> cacheIdx;//fast fint where the word loated in heap
+    public HeapCache(int capacity){
+        searchFrq=new Heap<HeapItem>(capacity);
+    }
+    public Entity get(String word){
+        Integer idx=cacheIdx.get(word);
+        if(idx!=null){
+            HeapItem ret= searchFrq.get(idx.intValue());
+            ret.searchTimes++;
+            int adjusted=searchFrq.adjust(idx.intValue());
+            cacheIdx.put(word,new Integer(adjusted));
+            return ret.word;
+        }
+        return null
+    }
+    public void add(Entity word){
+        if(cacheIdx.size()==capacity){
+             Entity root=searchFrq.root();
+            cacheIdx.remove(root.getWord());
+        }
+        int idx=searchFrq.add(word)
+        HeapItem item=new HeapItem(word,idx);
+        cacheIdx.put(word.getWord(),new Integer(idx));
+    }
+    class HeapItem implements Comparable<HeapItem>{
+        public Entity word;
+        public int searchTimes;
+    }
+}
+class LinearCache extends Cache{
+    
+    public LinearCache(int capacity){
+
     }
 }

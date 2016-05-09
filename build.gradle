@@ -1,0 +1,13 @@
+apply plugin:'java'
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+jar {
+	manifest {
+		attributes 'Main-Class':'me.l.puppy.dict.Main'
+	}
+}
