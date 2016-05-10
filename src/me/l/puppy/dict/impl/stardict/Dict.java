@@ -50,7 +50,7 @@ class Dict {
 				sb.append(this.charset.decode(ByteBuffer
 						.wrap(buffer, 0, offset)));
 			}
-
+			this.reader.clear();
 			if (this.parser == null) {
 				Entity en = new Entity();
 				en.setWord(info.word);
@@ -142,6 +142,10 @@ class Dict {
 				}
 			}
 			return readCounter;
+		}
+		public void clear(){
+			
+			pushbacked=-1;
 		}
 	}
 

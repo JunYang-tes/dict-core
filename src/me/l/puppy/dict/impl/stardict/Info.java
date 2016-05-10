@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 
+import me.l.puppy.dict.exceptions.DictNotAvaliable;
+
 class Info {
 	public String version;
 	public int wordCount;
@@ -54,7 +56,7 @@ class Info {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new DictNotAvaliable("Can't read information ofdictionary");
 		}
 	}
 }
