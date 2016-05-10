@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 import me.l.puppy.dict.core.Dict;
 import me.l.puppy.dict.model.Entity;
-
 public class Main {
 
 	/**
@@ -14,7 +13,7 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			System.out.println("Need dictionary path");
+			System.out.println("Using --help for help");
 		} else {
 			if(hasOp(args,"--help") || hasOp(args,"-h")){
 				printUsage();
@@ -107,4 +106,18 @@ public class Main {
 		}
 	}
 
+}
+class HeapItem implements Comparable<HeapItem>{
+	int value;
+	public HeapItem(int v){
+		this.value=v;
+	}
+	@Override
+	public int compareTo(HeapItem to){
+		return this.value-to.value;
+	}
+	@Override
+	public String toString(){
+		return this.value+"";
+	}
 }
