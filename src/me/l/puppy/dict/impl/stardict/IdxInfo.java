@@ -7,7 +7,7 @@ class IdxInfo implements Comparable<IdxInfo> {
 
 	@Override
 	public int compareTo(IdxInfo o) {
-		return this.word.compareTo(o.word);
+		return this.word.compareToIgnoreCase(o.word);
 	}
 
 	@Override
