@@ -1,5 +1,6 @@
 package me.l.puppy.dict.core;
 import java.util.HashMap;
+import java.util.List;
 import me.l.puppy.dict.model.*;
 import me.l.puppy.util.Heap;
 public abstract class CachedDict implements Dict {
@@ -17,7 +18,11 @@ public abstract class CachedDict implements Dict {
             return wordEntity;
         }
     }
+    public List<Entity> search(String word,SearchStrategy strategy,int maxResults){
+        return this.search_(word,strategy,maxResults);
+    }
     protected abstract Entity  search_(String word);
+    protected abstract List<Entity> search_(String word,SearchStrategy strategy,int maxResults);
 }
 
 class HeapCache extends Cache {

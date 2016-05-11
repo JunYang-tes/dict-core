@@ -3,8 +3,10 @@ package me.l.puppy.dict;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
+import java.util.List;
 
 import me.l.puppy.dict.core.Dict;
+import me.l.puppy.dict.core.SearchStrategy;
 import me.l.puppy.dict.model.Entity;
 public class Main {
 
@@ -87,8 +89,21 @@ public class Main {
 		while (true) {
 			String word = scanner.nextLine();
 			word = word.trim();
-			if (word.length() > 0)
-				out(dict.search(word));
+			if (word.length() > 0){
+				Entity en=dict.search(word);
+				if(en!=null)
+					out(en);
+				else{
+					List<Entity> list=dict.search(word,SearchStrategy.StartsWith,10);
+					if(list.size()==0){
+						System.out.println("Not found");
+					}else{
+						for(Entity en1 : list){
+							out(en1);
+						}
+					}
+				}
+			}
 		}
 	}
 

@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Properties;
+import java.util.List;
+import java.util.ArrayList;
 
 import me.l.puppy.dict.core.CachedDict;
 import me.l.puppy.dict.exceptions.DictNotAvaliable;
@@ -16,6 +18,7 @@ import me.l.puppy.dict.model.DictInfo;
 import me.l.puppy.dict.model.Entity;
 import me.l.puppy.util.ConfigedRegParser;
 import me.l.puppy.util.Parser;
+import me.l.puppy.dict.core.SearchStrategy;
 
 public class StarDict extends CachedDict {
 	Dict dict;
@@ -89,6 +92,20 @@ public class StarDict extends CachedDict {
 			this.load();
 		IdxInfo info = this.idxSeacher.search(word);
 		return this.dict.search(info);
+	}
+	@Override
+	protected List<Entity> search_(String word,SearchStrategy strategy,int maxResults){
+		if(!loaded)
+			this.load();
+		List<IdxInfo> infos = this.idxSeacher.search(word,strategy,maxResults);
+		List<Entity> entities=new ArrayList<Entity>();
+		for(IdxInfo info:infos){
+			Entity en=this.dict.search(info);
+			if(en!=null){
+				entities.add(en);
+			}
+		}
+		return entities;
 	}
 
 	@Override
