@@ -16,6 +16,7 @@ public class IdxSearcherKeyTree extends IdxSearcher {
         int m=match(word4insert,startIdxOfword,node);
         while (m!=0){
             if(m+1==node.word.length()){
+                startIdxOfword+=m;
                 node=node.child;
             }else{
                 //split current node into two nodes
@@ -30,7 +31,12 @@ public class IdxSearcherKeyTree extends IdxSearcher {
                 break;
             }
         }
+        String restPart=word4insert.substring(startIdxOfword);
+        TreeNode n=new TreeNode(restPart,idx,null,null);
+        n.sibling=node.child;
+        node.child=n;
     }
+
     /**
     * 
     */
@@ -45,9 +51,42 @@ public class IdxSearcherKeyTree extends IdxSearcher {
         }
         return i;
     }
+    //Is s1[idxOfs1:...] starts with s2
+    private boolean startsWith(String s1,String s2,int idxOfS1){
+        int restOfs1=s1.length()-idxOfS1;
+        int lenOfs2=s2.length();
+        if(restOfs1<lenOfs2){
+            return false;
+        }
+        for(var i=0;i<lenOfs2;i++){
+            if(s1.charAt(i+idxOfS1)!=s2.child(i)){
+                return false;
+            }
+        }
+        return true;
+    }
 
     public  IdxInfo search(String string){
-
+        string="#"+string;
+        int startIdxOfword=0;
+        int len=string.length();
+        TreeNode node = root;
+        while (startIdxOfword<len){
+            while(!startsWith(string,node.word,startIdxOfword))
+            {
+                node=node.sibling;
+                if(node==null){
+                    return null;
+                }
+            }
+            startIdxOfword+=node.word.length();
+            node=node.child;
+        }
+        return node.info;
+    }
+    private List<IdxInfo> searchStartsWith(String string,int maxResults){
+        List<IdxInfo> idxInfos=new ArrayList<IdxInfo>();
+        
     }
     public  List<IdxInfo> search(String string,SearchStrategy strategy,int maxResults){
 
