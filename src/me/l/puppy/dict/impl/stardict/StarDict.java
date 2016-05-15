@@ -19,6 +19,7 @@ import me.l.puppy.dict.model.Entity;
 import me.l.puppy.util.ConfigedRegParser;
 import me.l.puppy.util.Parser;
 import me.l.puppy.dict.core.SearchStrategy;
+import me.l.puppy.dict.impl.stardict.IdxSearcherSeq;
 
 public class StarDict extends CachedDict {
 	Dict dict;
@@ -82,7 +83,8 @@ public class StarDict extends CachedDict {
 	}
 
 	private void load() {
-		this.idxSeacher = new IdxSearcher(idxReader);
+		this.idxSeacher = new IdxSearcherKeyTree(idxReader);
+		//this.idxSeacher=new IdxSearcherSeq(idxReader);
 		loaded = true;
 	}
 

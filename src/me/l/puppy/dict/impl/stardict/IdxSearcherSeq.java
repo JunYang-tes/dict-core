@@ -1,4 +1,5 @@
-import java.io.FileNotFoundException;
+package me.l.puppy.dict.impl.stardict;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -6,7 +7,8 @@ import me.l.puppy.dict.core.SearchStrategy;
 class IdxSearcherSeq  extends IdxSearcher{
     List<IdxInfo> idxInfos;
      
-    public IdxSearcher(IdxReader reader) {
+    public IdxSearcherSeq(IdxReader reader) {
+    	super(reader);
         idxInfos = new ArrayList<IdxInfo>();
         IdxInfo info;
         while ((info = reader.next()) != null) {

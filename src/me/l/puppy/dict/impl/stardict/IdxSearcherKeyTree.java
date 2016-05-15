@@ -1,109 +1,264 @@
 package me.l.puppy.dict.impl.stardict;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+
+import me.l.puppy.dict.core.SearchStrategy;
+
 public class IdxSearcherKeyTree extends IdxSearcher {
     TreeNode root;
-    public IdxSearcherKeyTree(IdxReader reader){
-        IdxInfo info;
-        root=new TreeNode("#");
-        while ((info = reader.next()) != null) {
-           insert(info);
-        }
-    }
 
-    private void insert(IdxInfo idx){
-        int startIdxOfword = 0;
-        TreeNode node=root;
-        String word4insert="#"+idx.word;
-        int m=match(word4insert,startIdxOfword,node);
-        while (m!=0){
-            if(m+1==node.word.length()){
-                startIdxOfword+=m;
-                node=node.child;
-            }else{
-                //split current node into two nodes
-                String part1=node.word.substring(0,m);
-                String part2=node.word.substring(m);
-                node.word=part1;
-                TreeNode child=new TreeNode(part2);
-                child.info=node.info;
-                //ignore sibling's order
-                child.sibling=node.child;
-                node.child=child;
-                break;
-            }
+    public IdxSearcherKeyTree(IdxReader reader) {
+        super(reader);
+        root = new TreeNode('#');
+        IdxInfo info;
+        while ((info = reader.next()) != null) {
+            insert(info);
         }
-        String restPart=word4insert.substring(startIdxOfword);
-        TreeNode n=new TreeNode(restPart,idx,null,null);
-        n.sibling=node.child;
-        node.child=n;
     }
 
     /**
-    * 
-    */
-    private int match(String word,int startIdxOfword,TreeNode node){
-        int lenOfWord=word.length();
-        int len=node.word.length();
-        int i=0;
-        for(i=0;i<len && i+startIdxOfword < lenOfWord ;i++){
-            if(word.chatAt(i+startIdxOfword)!=node.word.charAt(i)){
-                return i;
-            }
-        }
-        return i;
-    }
-    //Is s1[idxOfs1:...] starts with s2
-    private boolean startsWith(String s1,String s2,int idxOfS1){
-        int restOfs1=s1.length()-idxOfS1;
-        int lenOfs2=s2.length();
-        if(restOfs1<lenOfs2){
-            return false;
-        }
-        for(var i=0;i<lenOfs2;i++){
-            if(s1.charAt(i+idxOfS1)!=s2.child(i)){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public  IdxInfo search(String string){
-        string="#"+string;
-        int startIdxOfword=0;
-        int len=string.length();
+     * Insert idxInfo into the tree
+     *
+     * @param idx
+     */
+    private void insert(IdxInfo idx) {
         TreeNode node = root;
-        while (startIdxOfword<len){
-            while(!startsWith(string,node.word,startIdxOfword))
-            {
-                node=node.sibling;
-                if(node==null){
-                    return null;
+        String word = "#" + idx.word;
+        int startIdx = 0;
+        TreeNode parent = root;
+        while (node != null) {
+            char ch = word.charAt(startIdx);
+            if (node.ch == ch) {
+                startIdx++;
+                parent = node;
+                node = node.child;
+            } else {
+                node = node.findSibling(ch);
+                if (node == null) {
+                    break;
+                } else {
+                    parent = node;
+                    startIdx++;
+                    node = node.child;
                 }
             }
-            startIdxOfword+=node.word.length();
-            node=node.child;
+        }
+        String sub = word.substring(startIdx);
+        for (char ch : sub.toCharArray()) {
+            node = new TreeNode(ch, null, null);
+            if (parent.child != null)
+                parent.child.addSibling(node);
+            else
+                parent.child = node;
+            parent = node;
+        }
+        node.info = idx;
+    }
+
+    public IdxInfo search(String string) {
+        string = "#" + string;
+        int startIdxOfWord = 0;
+        int len = string.length();
+        TreeNode node = root;
+        while (true) {
+            char ch = string.charAt(startIdxOfWord);
+            if (node.ch != ch) {
+                node = node.findSibling(ch);
+                if (node == null)
+                    return null;
+            }
+            if (++startIdxOfWord == len)
+                break;
+            node = node.child;
         }
         return node.info;
     }
-    private List<IdxInfo> searchStartsWith(String string,int maxResults){
-        List<IdxInfo> idxInfos=new ArrayList<IdxInfo>();
-        
-    }
-    public  List<IdxInfo> search(String string,SearchStrategy strategy,int maxResults){
 
+    private List<IdxInfo> searchStartsWith(String string, int maxResults) {
+        List<IdxInfo> idxInfos = new ArrayList<IdxInfo>();
+        TreeNode node = root;
+        int startIdx = 0;
+        string = "#" + string;
+        int len = string.length();
+        char ch;
+        while (true) {
+            ch = string.charAt(startIdx);
+            if (node.ch != ch) {
+                node = node.findSibling(ch);
+                if (node == null)
+                    break;
+            }
+            node = node.child;
+            if (++startIdx == len) {
+                break;
+            }
+        }
+        if (node != null) {
+            //there are words which are start with string located in the sub-tree of node
+            Queue<TreeNode> nodes = new ArrayDeque<TreeNode>();
+            nodes.add(node);
+            node = null;
+            while ((!nodes.isEmpty() || node != null) && maxResults > 0) {
+                if (node == null)
+                    node = nodes.poll();
+                if (node.info != null) {
+                    idxInfos.add(node.info);
+                    maxResults--;
+                }
+                for (TreeNode n : node.getSiblings()) {
+                    nodes.add(n);
+                }
+                node = node.child;
+            }
+        }
+        return idxInfos;
+    }
+
+    private List<IdxInfo> searchWild(TreeNode node, String word, int maxResult, int startIdx) {
+        List<IdxInfo> idxInfos = new ArrayList<IdxInfo>();
+        if(node==null)
+            return idxInfos;
+        int len = word.length();
+        char ch;
+        if(startIdx<len) {
+            while (true) {
+                ch = word.charAt(startIdx);
+                if (node.ch != ch && ch != '?') {
+                    node = node.findSibling(ch);
+                    if (node == null)
+                        return idxInfos;
+                }
+                if (ch == '?') {
+                    List<IdxInfo> tmp = searchWild(node.child, word, maxResult, startIdx + 1);
+                    for (int i = 0; i < tmp.size() && i < maxResult; i++) {
+                        idxInfos.add(tmp.get(i));
+                    }
+                    for (TreeNode n : node.getSiblings()) {
+                        if (maxResult > idxInfos.size()) {
+                            tmp = searchWild(n.child, word, maxResult - idxInfos.size(), startIdx + 1);
+                            idxInfos.addAll(tmp);
+                        }
+                    }
+                }
+                node = node.child;
+                if (++startIdx == len) {
+                    break;
+                }
+
+            }
+        }
+        if (node != null) {
+            Queue<TreeNode> nodes = new ArrayDeque<TreeNode>();
+            nodes.add(node);
+            node = null;
+            while ((!nodes.isEmpty() || node != null) && maxResult > 0) {
+                if (node == null)
+                    node = nodes.poll();
+                if (node.info != null) {
+                    idxInfos.add(node.info);
+                    maxResult--;
+                }
+                for (TreeNode n : node.getSiblings()) {
+                    nodes.add(n);
+                }
+                node = node.child;
+            }
+        }
+        return idxInfos;
+    }
+
+    private List<IdxInfo> searchWild(String word, int maxResults) {
+      return searchWild(root,"#"+word,maxResults,0);
+    }
+
+    @Override
+    public List<IdxInfo> search(String string, SearchStrategy strategy, int maxResults) {
+        if (strategy == SearchStrategy.StartsWith)
+            return searchStartsWith(string, maxResults);
+        else if (strategy == SearchStrategy.WilwidCard) {
+            return searchWild(string, maxResults);
+        }
+        return new ArrayList<IdxInfo>();
     }
 }
-class TreeNode{
-    public String word;
+
+class TreeNode {
+    public char ch;
     public IdxInfo info;
     public TreeNode child;
-    public TreeNode sibling;
-    public TreeNode(String word,IdxInfo info,TreeNode child,TreeNode sibling){
-        this.word=word;
-        this.info=info;
-        this.child=child;
-        this.sibling=sibling;
+    private List<TreeNode> siblings;
+
+    public TreeNode(char ch, IdxInfo info, TreeNode child) {
+        this.ch = ch;
+        this.info = info;
+        this.child = child;
+        siblings = new ArrayList<TreeNode>();
     }
-    public TreeNode(String word){
-        this(word,null,null,null);
+
+    /**
+     * Sorted adding
+     *
+     * @param node
+     */
+    public void addSibling(TreeNode node) {
+        siblings.add(node);
+        if (siblings.size() == 1)
+            return;
+        int size = siblings.size();
+        int i = size - 2;
+        while (i >= 0) {
+            TreeNode tmp = siblings.get(i);
+            if (node.ch < tmp.ch) {
+                siblings.set(i + 1, tmp);
+                i--;
+            } else {
+                break;
+            }
+        }
+        siblings.set(i + 1, node);
+    }
+
+    public TreeNode[] getSiblings() {
+        TreeNode[] ret = new TreeNode[siblings.size()];
+        int idx = 0;
+        for (TreeNode n : siblings) {
+            ret[idx++] = n;
+        }
+        return ret;
+    }
+
+    /**
+     * Find is there a node which it's ch == ch
+     *
+     * @param ch
+     * @return null if there is not one or the node if find
+     */
+    public TreeNode findSibling(char ch) {
+        int l = 0, h = siblings.size() - 1, m;
+        while (l <= h) {
+            m = (h + l) / 2;
+            TreeNode middle = siblings.get(m);
+            int cmp = ch - middle.ch;
+            if (cmp == 0) {
+                return middle;
+            } else if (cmp > 0) {
+                l = m + 1;
+            } else {
+                h = m - 1;
+            }
+        }
+        return null;
+    }
+
+    public TreeNode(char ch) {
+        this(ch, null, null);
+    }
+
+    @Override
+    public String toString() {
+        return ch + "";
     }
 }

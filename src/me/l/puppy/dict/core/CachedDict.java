@@ -31,9 +31,9 @@ class HeapCache extends Cache {
     public HeapCache(int capacity){
         super(capacity);
         cacheIdx = new HashMap<String,MyInteger>();
-        searchFrq=new Heap<HeapItem>(capacity,(idx,item)->{
+        /*searchFrq=new Heap<HeapItem>(capacity,(idx,item)->{
             cacheIdx.get(item.word.getWord()).value++;
-        });
+        });*/
     }
     public Entity get(String word){
         MyInteger idx=cacheIdx.get(word);
